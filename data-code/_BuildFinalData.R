@@ -1,13 +1,17 @@
 
 # Meta --------------------------------------------------------------------
-# Author:      Caroline Hansen
-# Notes:        R file to build Medicare Advantage dataset
+# Author:        Ian McCarthy
+# Date Created:  7/8/2019
+# Date Edited:   1/24/2022
+# Notes:         R file to build Medicare Advantage dataset
 
 
 
 # Preliminaries -----------------------------------------------------------
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(tidyverse, ggplot2, dplyr, lubridate, stringr, readxl, data.table, gdata, readr, plyr, pryr)
+pacman::p_load(tidyverse, ggplot2, dplyr, lubridate, stringr, readxl, data.table, gdata)
+
+
 
 
 
@@ -30,6 +34,7 @@ final.data <- full.ma.data %>%
            snp == "No" &
            (planid < 800 | planid >= 900) &
            !is.na(planid) & !is.na(fips))
+
 
 final.data <- final.data %>%
   left_join( star.ratings %>%
@@ -118,6 +123,3 @@ final.data <- final.data %>%
 write_rds(final.data,"data/output/final_ma_data.rds")
 
 
-mem_used()
-
-gc()
