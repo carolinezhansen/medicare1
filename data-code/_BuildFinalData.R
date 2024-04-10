@@ -36,7 +36,6 @@ final.data <- full.ma.data %>%
            !is.na(planid) & !is.na(fips))
 
 
-star.ratings
 
 final.data <- final.data %>%
   left_join( star.ratings %>%
@@ -46,16 +45,17 @@ final.data <- final.data %>%
                rename(state_long=state, county_long=county), 
              by=c("fips", "year"))
 
+
+
 # calculate star rating (Part C rating if plan doesn't offer part D, otherwise Part D rating if available)
 final.data <- final.data %>% ungroup() %>%
   mutate(Star_Rating = 
            case_when(
-             star.ratings$partd == "No" ~ star.ratings$partc_score,
-             star.ratings$partd == "Yes" & is.na(star.ratings$partcd_score) ~ star.ratings$partc_score,
-             star.ratings$partd == "Yes" & !is.na(star.ratings$partcd_score) ~ star.ratings$partcd_score,
-             TRUE ~ NA_real_
-           ))
-
+             final.data$partd == "No" ~ star.ratings$partc_score,
+             final.data$partd == "Yes" & is.na(star.ratings$partcd_score) ~ star.ratings$partc_score,
+             final.data$partd == "Yes" & !is.na(star.ratings$partcd_score) ~ star.ratings$partcd_score,
+             TRUE ~ NA_real_)
+           )
 
 final.state <- final.data %>% 
   group_by(state) %>% 

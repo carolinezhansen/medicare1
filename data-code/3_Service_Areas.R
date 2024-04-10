@@ -64,8 +64,7 @@ for (y in 2010:2015) {
     fill(plan_type, partial, eghp, org_type, org_name)
   
 
-
-
+ 
   
   assign(paste("service.area.",y,sep=""),service.year)  
 }

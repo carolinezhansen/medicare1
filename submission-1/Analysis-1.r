@@ -1,7 +1,9 @@
 #Analysis-1
 
+final.data <- read_rds("data/output/final_ma_data.rds")
+
 #clean the data
-ma.data.clean <- ma.data %>%
+ma.data.clean <- final.data %>%
   filter(!is.na(avg_enrollment) & year==2009 & !is.na(partc_score)) #<<
 
 
@@ -138,3 +140,101 @@ star_rating_counts_2010 <- plan_data_2010 %>%
 
 # Print the table
 print(star_rating_counts_2010)
+
+# Problem 5
+library(dplyr)
+
+# Step 1: Define the running variable underlying the star rating
+final.data <- final.data %>%
+  mutate(Star_Rating = case_when(
+    partd == "No" ~ star.ratings$partc_score,
+    partd == "Yes" & is.na(star.ratings$partcd_score) ~ star.ratings$partc_score,
+    partd == "Yes" & !is.na(star.ratings$partcd_score) ~ star.ratings$partcd_score,
+    TRUE ~ NA_real_
+  ))
+
+# Step 2: Round up the running variable to the nearest 0.5 for star rating
+final.data <- final.data %>%
+  mutate(Star_Rating_Rounded = round(Star_Rating * 2) / 2)
+
+# Step 3: Count the number of plans for each star rating
+star_counts <- final.data %>%
+  group_by(Star_Rating_Rounded) %>%
+  summarise(Count = n())
+
+# Print the table showing the number of plans rounded up into each star rating
+print(star_counts)
+
+
+# Problem 6
+ma.rd1_filtered <- ma.rd1 %>%
+  mutate(score = raw_rating - 2.25,
+         treat = (score >= 0),
+         window = (score >= -0.125 & score <= 0.125),  # Adjusted bandwidth
+         mkt_share = avg_enrollment / avg_eligibles,
+         ln_share = log(mkt_share),
+         score_treat = score * treat)
+star3 <- lm(mkt_share ~ score + treat + score_treat, data = ma.rd1_filtered %>% filter(score == 0))
+star35 <- lm(mkt_share ~ score + treat + score_treat, data = ma.rd1_filtered %>% filter(score == 0.5))
+
+rows <- tribble(~term, ~ m1, ~ m2, ~ m3 , ~ m4,
+                'Bandwidth', "0.25", "0.175", "0.175", "0.125")
+attr(rows, 'position')  <- 7
+
+modelsummary(list(star3, star3.5),
+          keep=c("score", "treatTRUE", "score_treat"),
+          coef_map=c("score"="Raw Score", 
+                    "treatTRUE"="Treatment",
+                    "score_treat"="Score x Treat"),
+          gof_map=c("nobs", "r.squared"),
+          add_rows=rows)
+# Problem 7
+
+library(dplyr)
+library(modelsummary)
+library(ggplot2)
+
+# Define bandwidths
+bandwidths <- c(0.1, 0.12, 0.13, 0.14, 0.15)
+
+# Initialize lists to store treatment effect estimates
+est_3_star <- vector("numeric", length(bandwidths))
+est_35_star <- vector("numeric", length(bandwidths))
+
+# Loop through each bandwidth
+for (i in seq_along(bandwidths)) {
+  # Filter the data within the specified bandwidth
+  ma.rd1_filtered <- ma.rd1 %>%
+    mutate(score = raw_rating - 2.25,
+           treat = (score >= 0),
+           window = (score >= -bandwidths[i] & score <= bandwidths[i]),
+           mkt_share = avg_enrollment / avg_eligibles,
+           ln_share = log(mkt_share),
+           score_treat = score * treat)
+  
+  # Fit linear models for the treatment effect estimation
+  star3 <- lm(mkt_share ~ score + treat + score_treat, data = ma.rd1_filtered %>% filter(score == 0))
+  star35 <- lm(mkt_share ~ score + treat + score_treat, data = ma.rd1_filtered %>% filter(score == 0.5))
+  
+  # Extract the treatment effect estimates
+  est_3_star[i] <- as.numeric(star3$coef[3])
+  est_35_star[i] <- as.numeric(star35$coef[3])
+}
+
+# Create a dataframe for the results
+results_df <- data.frame(
+  Bandwidth = bandwidths,
+  Star_3_Effect = est_3_star,
+  Star_3.5_Effect = est_35_star
+)
+
+# Plot the results
+ggplot(results_df, aes(x = Bandwidth)) +
+  geom_line(aes(y = Star_3_Effect, color = "3-Star")) +
+  geom_line(aes(y = Star_3.5_Effect, color = "3.5-Star")) +
+  labs(x = "Bandwidth", y = "Treatment Effect Estimate", color = "Star Rating") +
+  theme_minimal()
+
+
+# Problem 8
+
