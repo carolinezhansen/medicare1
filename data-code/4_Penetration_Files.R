@@ -79,3 +79,5 @@ for (y in 2010:2015) {
 ma.penetration.data=rbind(ma.pene.2010,
                           ma.pene.2011,ma.pene.2012,ma.pene.2013,ma.pene.2014,ma.pene.2015)
 write_rds(ma.penetration.data,"data/output/ma_penetration.rds")
+
+

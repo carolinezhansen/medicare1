@@ -1,6 +1,6 @@
 
 # Meta --------------------------------------------------------------------
-# Author:        Ian McCarthy
+# Author:        Caroline Hansen
 # Date Created:  7/8/2019
 # Date Edited:   1/24/2022
 # Notes:         R file to build Medicare Advantage dataset
@@ -36,6 +36,8 @@ final.data <- full.ma.data %>%
            !is.na(planid) & !is.na(fips))
 
 
+star.ratings
+
 final.data <- final.data %>%
   left_join( star.ratings %>%
                select(-contract_name, -org_type, -org_marketing), 
@@ -48,9 +50,9 @@ final.data <- final.data %>%
 final.data <- final.data %>% ungroup() %>%
   mutate(Star_Rating = 
            case_when(
-             partd == "No" ~ partc_score,
-             partd == "Yes" & is.na(partcd_score) ~ partc_score,
-             partd == "Yes" & !is.na(partcd_score) ~ partcd_score,
+             star.ratings$partd == "No" ~ star.ratings$partc_score,
+             star.ratings$partd == "Yes" & is.na(star.ratings$partcd_score) ~ star.ratings$partc_score,
+             star.ratings$partd == "Yes" & !is.na(star.ratings$partcd_score) ~ star.ratings$partcd_score,
              TRUE ~ NA_real_
            ))
 
