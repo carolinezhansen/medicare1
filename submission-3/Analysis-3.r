@@ -185,6 +185,7 @@ problem6.1 <- rdrobust(y=ma.rd3$mkt_share, x=ma.rd3$score, c=0,
 summary(problem6.1)
 
 
+
 # Extract the coefficient, standard error, z-value, and p-value
 coef <- est3$coef
 std_err <- est3$se
@@ -192,7 +193,7 @@ z_value <- est3$z
 p_value <- est3$p
 
 # Create a data frame
-problem6.1 <- data.frame(
+df6.1 <- data.frame(
   Rating = c("3 vs 2.5"),
   Coefficient = coef,
   Std.Error = std_err,
@@ -200,7 +201,8 @@ problem6.1 <- data.frame(
   P.Value = p_value
 )
 
-print(problem6.1)
+print(df6.1)
+df6.1
 
 # Estimate the effect of receiving a 3.5-star rating
 ma.rd35 <- ma.data.clean %>%
@@ -236,7 +238,7 @@ problem6.2 <- data.frame(
 
 # Print the results
 print(problem6.2)
-
+problem6.2
 # Problem 7
 
 
@@ -411,26 +413,43 @@ contracts_above <- ma.da %>%
 
 # Create density plots or histograms to compare the distribution of the running variable
 # before and after the threshold values
-plot_below <- ggplot(ma.rounded aes(x = score)) +
+plot_below <- ggplot(ma.rounded, aes(x = Star_Rating)) +
   geom_density(fill = "blue", alpha = 0.5) +  # Density plot for contracts below the threshold
   labs(title = "Distribution of Running Variable - Contracts Below Threshold")
 
-plot_above <- ggplot(ma.rounded, aes(x = score)) +
+plot_above <- ggplot(ma.rounded, aes(x = Star_Rating)) +
   geom_density(fill = "red", alpha = 0.5) +  # Density plot for contracts above the threshold
   labs(title = "Distribution of Running Variable - Contracts Above Threshold")
 
 # Plot the graphs side by side
 plot_grid(plot_below, plot_above, ncol = 2)
 
+plot_above
+
 plot_below
 
-
 # Problem 9
-
 # Similar to question 4, examine whether plans just above the threshold values have different characteristics than contracts just below the threshold values. Use HMO and Part D status as your plan characteristics.
 
+mkt_share_data2 <- final.data %>%
+  filter(plan_type == "HMO", partd == "Yes") %>%
+  group_by(fips, year) %>%
+  summarize(enroll = first(avg_enrolled),
+            medicare = first(avg_eligibles),
+            bench = mean(ma_rate, na.rm = TRUE)) %>%
+  mutate(mkt_share = enroll / medicare)
+
+
+ma.share <- ggplot(mkt.share.data, aes(x = year, y = mkt_share))
+
+# Add stat_summary layer for summary statistics
+problem9 <- ma.share +
+  stat_summary(fun = mean, geom = "line") + 
+  labs(x = "Year", y = "Market Share", title = "Market Share Over Years") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+problem9 
+   # Rotate x-axis labels if needed
 # Problem 10 
 # Summarize your findings from 5-9. What is the effect of increasing a star rating on enrollments? Briefly explain your results.
-
-
 save.image("submission-3/Hwk3_workspace.Rdata")
