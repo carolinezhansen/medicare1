@@ -1,10 +1,10 @@
 ---
-title: "Submission1-HW4"
+title: "Submission3-HW4"
 subtitle: "Research Methods, Spring 2024"
 author: "Caroline Hansen"
 format:
   pdf:
-    output-file: "carolinehw4-1"
+    output-file: "carolinehw4-3"
     output-ext:  "pdf"
     header-includes:
       - \usepackage{float}

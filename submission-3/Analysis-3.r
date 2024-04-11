@@ -118,7 +118,7 @@ star_rating_counts_2010 <- plan_data_2010 %>%
   group_by(rounded_star_rating) %>%
   summarise(num_plans = n())
 
-#Problem 5
+
 ma.data.clean <- final.data %>%
   filter(!is.na(avg_enrollment) & year==2010 & !is.na(partc_score)) 
 
@@ -158,82 +158,279 @@ problem5
 
 
 # Problem 6
-ma.rd1_filtered <- ma.data.clean %>%
-  mutate(score = raw_rating - 2.5,
-         treat = (score >= 0),
-         window = (score >= -0.125 & score <= 0.125),  # Adjusted bandwidth
-         mkt_share = avg_enrollment / avg_eligibles,
+# Using the RD estimator with a bandwidth of 0.125, provide an estimate of the effect of receiving a 3-star versus a 2.5 star rating on enrollments. 
+#Repeat the exercise to estimate the effects at 3.5 stars, and summarize your results in a table.
+
+# Install the 'rdrobust' package if not already installed
+if (!require("rdrobust")) install.packages("rdrobust")
+
+# Load the 'rdrobust' package
+library(rdrobust)
+
+# Estimate the effect of receiving a 3-star versus a 2.5-star rating
+ma.rd3 <- ma.data.clean %>%
+  filter(Star_Rating==2.5 | Star_Rating==3) %>%
+  mutate(score = raw_rating - 2.75,
+         treat = (Star_Rating==3.0),
+         window1 = (score>=-.125 & score<=.125),
+         window2 = (score>=-.125 & score<=.125),
+         mkt_share = avg_enrollment/avg_eligibles,
          ln_share = log(mkt_share),
-         score_treat = score * treat)
-star3 <- lm(mkt_share ~ score + treat + score_treat, data = ma.rd1_filtered %>% filter(score == 0.5))
-star35 <- lm(mkt_share ~ score + treat + score_treat, data = ma.rd1_filtered %>% filter(score == 1))
+         score_treat=score*treat)
 
-rows <- tribble(~term, ~ m1, ~ m2, ~ m3 , ~ m4,
-                'Bandwidth', "0.25", "0.175", "0.175", "0.125")
-attr(rows, 'position')  <- 7
+problem6.1 <- rdrobust(y=ma.rd3$mkt_share, x=ma.rd3$score, c=0,
+                 h=0.125, p=1, kernel="uniform", vce="hc0",
+                 masspoints="off")
 
-modelsummary(list(star3, star35),
-          keep=c("score", "treatTRUE", "score_treat"),
-          coef_map=c("score"="Raw Score", 
-                    "treatTRUE"="Treatment",
-                    "score_treat"="Score x Treat"),
-          gof_map=c("nobs", "r.squared"),
-          add_rows=rows)
+summary(problem6.1)
 
-est_3_star <- as.numeric(coef(star3[1]))
-est_35_star <- as.numeric(coef(star35[1]))
-star3
-# Create a summary table of results
-problem6 <- data.frame(
-  Star_Rating = c("3", "3.5"),
-  Treatment_Effect = c(est_3_star, est_35_star)
+
+# Extract the coefficient, standard error, z-value, and p-value
+coef <- est3$coef
+std_err <- est3$se
+z_value <- est3$z
+p_value <- est3$p
+
+# Create a data frame
+problem6.1 <- data.frame(
+  Rating = c("3 vs 2.5"),
+  Coefficient = coef,
+  Std.Error = std_err,
+  Z.Value = z_value,
+  P.Value = p_value
 )
-# Print the summary table
-print(problem6)
+
+print(problem6.1)
+
+# Estimate the effect of receiving a 3.5-star rating
+ma.rd35 <- ma.data.clean %>%
+  filter(Star_Rating==3 | Star_Rating==3.5) %>%
+  mutate(score = raw_rating - 3.25,
+         treat = (score>=0),
+         window1 = (score>=-.125 & score<=.125),
+         window2 = (score>=-.125 & score<=.125),
+         mkt_share = avg_enrollment/avg_eligibles,
+         ln_share = log(mkt_share),
+         score_treat=score*treat)
+
+est6.2 <- rdrobust(y=ma.rd35$mkt_share, x=ma.rd35$score, c=0,
+                  h=0.125, p=1, kernel="uniform", vce="hc0",
+                  masspoints="off")
+
+summary(est6.2)
+
+# Extract the coefficient, standard error, z-value, and p-value
+coef <- est6.1$coef
+std_err <- est6.2$se
+z_value <- est6.2$z
+p_value <- est6.2$p
+
+# Create a data frame
+problem6.2 <- data.frame(
+  Rating = c("3 vs 3.5"),
+  Coefficient = coef,
+  Std.Error = std_err,
+  Z.Value = z_value,
+  P.Value = p_value
+)
+
+# Print the results
+print(problem6.2)
 
 # Problem 7
 
-# Define bandwidths
-bandwidths <- c(0.1, 0.12, 0.13, 0.14, 0.15)
 
-# Initialize lists to store treatment effect estimates
-est_3_star <- vector("numeric", length(bandwidths))
-est_35_star <- vector("numeric", length(bandwidths))
+# Estimate the effect of receiving a 3.5-star rating
 
-# Loop through each bandwidth
-for (i in seq_along(bandwidths)) {
-  # Filter the data within the specified bandwidth
-  ma.rd1_filtered <- ma.rd1 %>%
-    mutate(score = raw_rating - 2.25,
-           treat = (score >= 0),
-           window = (score >= -bandwidths[i] & score <= bandwidths[i]),
-           mkt_share = avg_enrollment / avg_eligibles,
-           ln_share = log(mkt_share),
-           score_treat = score * treat)
-  
-  # Fit linear models for the treatment effect estimation
-  star3 <- lm(mkt_share ~ score + treat + score_treat, data = ma.rd1_filtered %>% filter(score == 0))
-  star35 <- lm(mkt_share ~ score + treat + score_treat, data = ma.rd1_filtered %>% filter(score == 0.5))
-  
-  # Extract the treatment effect estimates
-  est_3_star[i] <- as.numeric(star3$coef[3])
-  est_35_star[i] <- as.numeric(star35$coef[3])
-}
+#Bandwidth .1
+ma.rd7.1 <- ma.data.clean %>%
+  filter(Star_Rating==3 | Star_Rating==3.5) %>%
+  mutate(score = raw_rating - 3.25,
+         treat = (score>=0),
+         window1 = (score>=-.1 & score<=.1),
+         mkt_share = avg_enrollment/avg_eligibles,
+         ln_share = log(mkt_share),
+         score_treat=score*treat)
 
-# Create a dataframe for the results
-results_df <- data.frame(
-  Bandwidth = bandwidths,
-  Star_3_Effect = est_3_star,
-  Star_3.5_Effect = est_35_star
+est7.1 <- rdrobust(y=ma.rd7$mkt_share, x=ma.rd7$score, c=0,
+                  h=0.1, p=1, kernel="uniform", vce="hc0",
+                  masspoints="off")
+
+summary(est7.1)
+
+coef7.1 <- est7.1$coef
+std_err7.1 <- est7.1$se
+z_value7.1 <- est7.1$z
+p_value7.1 <- est7.1$p
+
+problem7.1 <- data.frame(
+  Rating = c("3 vs 3.5"),
+  Coefficient = coef7.1,
+  Std.Error = std_err7.1,
+  Z.Value = z_value7.1,
+  P.Value = p_value7.1
 )
 
-# Plot the results
-ggplot(results_df, aes(x = Bandwidth)) +
-  geom_line(aes(y = Star_3_Effect, color = "3-Star")) +
-  geom_line(aes(y = Star_3.5_Effect, color = "3.5-Star")) +
-  labs(x = "Bandwidth", y = "Treatment Effect Estimate", color = "Star Rating") +
-  theme_minimal()
+# Print the results
+print(problem7.1)
+
+ma.rd7.2 <- ma.data.clean %>%
+  filter(Star_Rating==3 | Star_Rating==3.5) %>%
+  mutate(score = raw_rating - 3.25,
+         treat = (score>=0),
+         window2 = (score>=-.12 & score<=.12),
+         mkt_share = avg_enrollment/avg_eligibles,
+         ln_share = log(mkt_share),
+         score_treat=score*treat)
+
+est7.2 <- rdrobust(y=ma.rd7$mkt_share, x=ma.rd7$score, c=0,
+                  h=0.12, p=1, kernel="uniform", vce="hc0",
+                  masspoints="off")
+
+summary(est7.2)
+
+coef7.2 <- est7.2$coef
+std_err7.2 <- est7.2$se
+z_value7.2 <- est7.2$z
+p_value7.2 <- est7.2$p
+
+# Create a data frame
+problem7.2 <- data.frame(
+  Rating = c("3 vs 3.5"),
+  Coefficient = coef7.2,
+  Std.Error = std_err7.2,
+  Z.Value = z_value7.2,
+  P.Value = p_value7.2
+)
+# .14 Bandwidth
+ma.rd7.3 <- ma.data.clean %>%
+  filter(Star_Rating==3 | Star_Rating==3.5) %>%
+  mutate(score = raw_rating - 3.25,
+         treat = (score>=0),
+         window2 = (score>=-.13 & score<=.13),
+         mkt_share = avg_enrollment/avg_eligibles,
+         ln_share = log(mkt_share),
+         score_treat=score*treat)
+
+est7.3 <- rdrobust(y=ma.rd7$mkt_share, x=ma.rd7$score, c=0,
+                  h=0.13, p=1, kernel="uniform", vce="hc0",
+                  masspoints="off")
+
+summary(est7.3)
+
+coef7.3 <- est7.3$coef
+std_err7.3 <- est7.3$se
+z_value7.3 <- est7.3$z
+p_value7.3 <- est7.3$p
+
+# Create a data frame
+problem7.3 <- data.frame(
+  Rating = c("3 vs 3.5"),
+  Coefficient = coef7.3,
+  Std.Error = std_err7.3,
+  Z.Value = z_value7.3,
+  P.Value = p_value7.3
+)
+
+# bandwidth .14
+ma.rd7.4 <- ma.data.clean %>%
+  filter(Star_Rating==3 | Star_Rating==3.5) %>%
+  mutate(score = raw_rating - 3.25,
+         treat = (score>=0),
+         window2 = (score>=-.14 & score<=.14),
+         mkt_share = avg_enrollment/avg_eligibles,
+         ln_share = log(mkt_share),
+         score_treat=score*treat)
+
+est7.4 <- rdrobust(y=ma.rd7$mkt_share, x=ma.rd7$score, c=0,
+                  h=0.14, p=1, kernel="uniform", vce="hc0",
+                  masspoints="off")
+
+summary(est7.4)
+
+coef7.4 <- est7.4$coef
+std_err7.4 <- est7.4$se
+z_value7.4 <- est7.4$z
+p_value7.4 <- est7.4$p
+
+# Create a data frame
+problem7.4 <- data.frame(
+  Rating = c("3 vs 3.5"),
+  Coefficient = coef7.4,
+  Std.Error = std_err7.4,
+  Z.Value = z_value7.4,
+  P.Value = p_value7.4
+)
+
+# Bandwidth .15
+ma.rd7.5 <- ma.data.clean %>%
+  filter(Star_Rating==3 | Star_Rating==3.5) %>%
+  mutate(score = raw_rating - 3.25,
+         treat = (score>=0),
+         window2 = (score>=-.15 & score<=.15),
+         mkt_share = avg_enrollment/avg_eligibles,
+         ln_share = log(mkt_share),
+         score_treat=score*treat)
+
+est7.5 <- rdrobust(y=ma.rd7$mkt_share, x=ma.rd7$score, c=0,
+                  h=0.15, p=1, kernel="uniform", vce="hc0",
+                  masspoints="off")
+
+summary(est7.5)
+
+coef7.5 <- est7.5$coef
+std_err7.5 <- est7.5$se
+z_value7.5 <- est7.5$z
+p_value7.5 <- est7.5$p
+
+# Create a data frame
+problem7.4 <- data.frame(
+  Rating = c("3 vs 3.5"),
+  Coefficient = coef7.4,
+  Std.Error = std_err7.4,
+  Z.Value = z_value7.4,
+  P.Value = p_value7.4
+)
+
 
 
 # Problem 8
+# Examine (graphically) whether contracts appear to manipulate the running variable. In other words, look at the distribution of the running variable before and after the relevent threshold values. What do you find?
 
+library(ggplot2)
+
+
+
+threshold_values <- c(-0.125, 0.125)  # Assuming these are your relevant threshold values
+
+# Subset the data for contracts just below and just above the threshold values
+contracts_below <- ma.data.clean %>%
+  filter(score >= threshold_values[1] - 0.05 & score <= threshold_values[1] + 0.05)
+contracts_above <- ma.da %>%
+  filter(score >= threshold_values[2] - 0.05 & score <= threshold_values[2] + 0.05)
+
+# Create density plots or histograms to compare the distribution of the running variable
+# before and after the threshold values
+plot_below <- ggplot(ma.rounded aes(x = score)) +
+  geom_density(fill = "blue", alpha = 0.5) +  # Density plot for contracts below the threshold
+  labs(title = "Distribution of Running Variable - Contracts Below Threshold")
+
+plot_above <- ggplot(ma.rounded, aes(x = score)) +
+  geom_density(fill = "red", alpha = 0.5) +  # Density plot for contracts above the threshold
+  labs(title = "Distribution of Running Variable - Contracts Above Threshold")
+
+# Plot the graphs side by side
+plot_grid(plot_below, plot_above, ncol = 2)
+
+plot_below
+
+
+# Problem 9
+
+# Similar to question 4, examine whether plans just above the threshold values have different characteristics than contracts just below the threshold values. Use HMO and Part D status as your plan characteristics.
+
+# Problem 10 
+# Summarize your findings from 5-9. What is the effect of increasing a star rating on enrollments? Briefly explain your results.
+
+
+save.image("submission-3/Hwk3_workspace.Rdata")
