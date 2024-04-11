@@ -9,7 +9,7 @@
 
 # Preliminaries -----------------------------------------------------------
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(tidyverse, ggplot2, dplyr, lubridate, stringr, readxl, data.table, gdata)
+pacman::p_load(tidyverse, ggplot2, dplyr, lubridate, stringr, readxl, data.table, gdata, modelsummary)
 
 
 
@@ -51,9 +51,9 @@ final.data <- final.data %>%
 final.data <- final.data %>% ungroup() %>%
   mutate(Star_Rating = 
            case_when(
-             final.data$partd == "No" ~ star.ratings$partc_score,
-             final.data$partd == "Yes" & is.na(star.ratings$partcd_score) ~ star.ratings$partc_score,
-             final.data$partd == "Yes" & !is.na(star.ratings$partcd_score) ~ star.ratings$partcd_score,
+             partd == "No" ~ partc_score,
+             partd == "Yes" & is.na(partcd_score) ~ partc_score,
+             partd == "Yes" & !is.na(partcd_score) ~ partcd_score,
              TRUE ~ NA_real_)
            )
 
