@@ -1,0 +1,48 @@
+---
+title: "Submission3-HW4"
+subtitle: "Research Methods, Spring 2024"
+author: "Caroline Hansen"
+format:
+  pdf:
+    output-file: "carolinehw4-3"
+    output-ext:  "pdf"
+    header-includes:
+      - \usepackage{float}
+      - \floatplacement{table}{H}
+---
+
+https://github.com/carolinezhansen/medicare1/tree/main
+
+
+
+```{r}
+#| include: false
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(tidyverse, ggplot2, dplyr, lubridate, readr, readxl, hrbrthemes, fixest,
+               scales, gganimate, gapminder, gifski, png, tufte, plotly, OECD,
+               ggrepel, survey, foreign, devtools, pdftools, kableExtra, modelsummary,
+               kableExtra)
+```
+
+```{r}
+#| include: false
+#| eval: true
+
+load("Hwk3_workspace.Rdata")
+```
+
+# Answers for Homework 4: Submission 1
+\newpage
+
+# Problem 1 
+\noindent 1. Remove all SNPs, 800-series plans, and prescription drug only plans (i.e., plans that do not offer Part C benefits). Provide a box and whisker plot showing the distribution of plan counts by county over time. Do you think that the number of plans is sufficient, too few, or too many? @problem1
+```{r} 
+#| echo: false
+#| label: 1
+#| fig-cap: "Distribution of Plan Counts By County Over time"
+
+problem1
+
+```
+
+

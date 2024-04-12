@@ -178,11 +178,11 @@ ma.rd3 <- ma.data.clean %>%
          ln_share = log(mkt_share),
          score_treat=score*treat)
 
-problem6.1 <- rdrobust(y=ma.rd3$mkt_share, x=ma.rd3$score, c=0,
+est3 <- rdrobust(y=ma.rd3$mkt_share, x=ma.rd3$score, c=0,
                  h=0.125, p=1, kernel="uniform", vce="hc0",
                  masspoints="off")
 
-summary(problem6.1)
+summary(est3)
 
 
 
@@ -193,7 +193,7 @@ z_value <- est3$z
 p_value <- est3$p
 
 # Create a data frame
-df6.1 <- data.frame(
+problem6.1 <- data.frame(
   Rating = c("3 vs 2.5"),
   Coefficient = coef,
   Std.Error = std_err,
@@ -201,8 +201,7 @@ df6.1 <- data.frame(
   P.Value = p_value
 )
 
-print(df6.1)
-df6.1
+problem6.1
 
 # Estimate the effect of receiving a 3.5-star rating
 ma.rd35 <- ma.data.clean %>%
@@ -222,7 +221,7 @@ est6.2 <- rdrobust(y=ma.rd35$mkt_share, x=ma.rd35$score, c=0,
 summary(est6.2)
 
 # Extract the coefficient, standard error, z-value, and p-value
-coef <- est6.1$coef
+coef <- est6.2$coef
 std_err <- est6.2$se
 z_value <- est6.2$z
 p_value <- est6.2$p
@@ -254,7 +253,7 @@ ma.rd7.1 <- ma.data.clean %>%
          ln_share = log(mkt_share),
          score_treat=score*treat)
 
-est7.1 <- rdrobust(y=ma.rd7$mkt_share, x=ma.rd7$score, c=0,
+est7.1 <- rdrobust(y=ma.rd7.1$mkt_share, x=ma.rd7.1$score, c=0,
                   h=0.1, p=1, kernel="uniform", vce="hc0",
                   masspoints="off")
 
@@ -270,11 +269,14 @@ problem7.1 <- data.frame(
   Coefficient = coef7.1,
   Std.Error = std_err7.1,
   Z.Value = z_value7.1,
-  P.Value = p_value7.1
+  P.Value = p_value7.1,
+  Bandwidth = .1
 )
 
 # Print the results
 print(problem7.1)
+
+problem7.1
 
 ma.rd7.2 <- ma.data.clean %>%
   filter(Star_Rating==3 | Star_Rating==3.5) %>%
@@ -285,7 +287,7 @@ ma.rd7.2 <- ma.data.clean %>%
          ln_share = log(mkt_share),
          score_treat=score*treat)
 
-est7.2 <- rdrobust(y=ma.rd7$mkt_share, x=ma.rd7$score, c=0,
+est7.2 <- rdrobust(y=ma.rd7.2$mkt_share, x=ma.rd7.2$score, c=0,
                   h=0.12, p=1, kernel="uniform", vce="hc0",
                   masspoints="off")
 
@@ -302,9 +304,13 @@ problem7.2 <- data.frame(
   Coefficient = coef7.2,
   Std.Error = std_err7.2,
   Z.Value = z_value7.2,
-  P.Value = p_value7.2
+  P.Value = p_value7.2,
+  Bandwidth = .12
+
 )
-# .14 Bandwidth
+problem7.2
+
+# .13 Bandwidth
 ma.rd7.3 <- ma.data.clean %>%
   filter(Star_Rating==3 | Star_Rating==3.5) %>%
   mutate(score = raw_rating - 3.25,
@@ -314,7 +320,7 @@ ma.rd7.3 <- ma.data.clean %>%
          ln_share = log(mkt_share),
          score_treat=score*treat)
 
-est7.3 <- rdrobust(y=ma.rd7$mkt_share, x=ma.rd7$score, c=0,
+est7.3 <- rdrobust(y=ma.rd7.3$mkt_share, x=ma.rd7.3$score, c=0,
                   h=0.13, p=1, kernel="uniform", vce="hc0",
                   masspoints="off")
 
@@ -331,9 +337,10 @@ problem7.3 <- data.frame(
   Coefficient = coef7.3,
   Std.Error = std_err7.3,
   Z.Value = z_value7.3,
-  P.Value = p_value7.3
+  P.Value = p_value7.3,
+  Bandwidth = .13
 )
-
+problem7.3
 # bandwidth .14
 ma.rd7.4 <- ma.data.clean %>%
   filter(Star_Rating==3 | Star_Rating==3.5) %>%
@@ -344,7 +351,7 @@ ma.rd7.4 <- ma.data.clean %>%
          ln_share = log(mkt_share),
          score_treat=score*treat)
 
-est7.4 <- rdrobust(y=ma.rd7$mkt_share, x=ma.rd7$score, c=0,
+est7.4 <- rdrobust(y=ma.rd7.4$mkt_share, x=ma.rd7.4$score, c=0,
                   h=0.14, p=1, kernel="uniform", vce="hc0",
                   masspoints="off")
 
@@ -361,8 +368,10 @@ problem7.4 <- data.frame(
   Coefficient = coef7.4,
   Std.Error = std_err7.4,
   Z.Value = z_value7.4,
-  P.Value = p_value7.4
+  P.Value = p_value7.4,
+  Bandwidth = .14
 )
+problem7.4
 
 # Bandwidth .15
 ma.rd7.5 <- ma.data.clean %>%
@@ -374,7 +383,7 @@ ma.rd7.5 <- ma.data.clean %>%
          ln_share = log(mkt_share),
          score_treat=score*treat)
 
-est7.5 <- rdrobust(y=ma.rd7$mkt_share, x=ma.rd7$score, c=0,
+est7.5 <- rdrobust(y=ma.rd7.5$mkt_share, x=ma.rd7.5$score, c=0,
                   h=0.15, p=1, kernel="uniform", vce="hc0",
                   masspoints="off")
 
@@ -386,15 +395,34 @@ z_value7.5 <- est7.5$z
 p_value7.5 <- est7.5$p
 
 # Create a data frame
-problem7.4 <- data.frame(
+problem7.5 <- data.frame(
   Rating = c("3 vs 3.5"),
   Coefficient = coef7.4,
   Std.Error = std_err7.4,
   Z.Value = z_value7.4,
-  P.Value = p_value7.4
+  P.Value = p_value7.4,
+  Bandwidth = .15
 )
 
+problem7.5
 
+problem7 <- rbind(
+  problem7.1,
+  problem7.2,
+  problem7.3,
+  problem7.4,
+  problem7.5
+)
+
+problem7
+# Create a plot
+problem.7 <- ggplot(problem7, aes(x = as.factor(Bandwidth), y = Coeff)) +
+  geom_bar(stat = "identity", fill = "skyblue")+ 
+  labs(title = "Effect of Receiving a 3.5-Star Rating",
+       x = "Bandwidth Difference",
+       y = "Coefficient") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Problem 8
 # Examine (graphically) whether contracts appear to manipulate the running variable. In other words, look at the distribution of the running variable before and after the relevent threshold values. What do you find?

@@ -104,7 +104,6 @@ Examine (graphically) whether contracts appear to manipulate the running variabl
 
 plot_above
 
-plot_below
 ```
 \newpage
 

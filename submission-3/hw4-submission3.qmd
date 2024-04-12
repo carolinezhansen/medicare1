@@ -52,6 +52,7 @@ problem1
 #| echo: false
 #| label: 2
 #| fig-cap: "Frequency Distribution of Star Ratings"
+
 problem2
 ```
 
@@ -62,6 +63,7 @@ problem2
 #| echo: false
 #| label: 3
 #| fig-cap: "Average Benchmark Payment Over time"
+
 problem3
 ```
 
@@ -75,6 +77,7 @@ problem3
 #| echo: false
 #| label: 4
 #| fig-cap: "Average Medicare Advantage Share"
+
 problem4
 ```
 
@@ -84,12 +87,13 @@ problem4
 ```{r} 
 #| echo: false
 #| label: 5
-#| fig-cap: "RD1"
+#| fig-cap: "Number of Plans Based on Star Rating"
 
-problem5
+
+options(knitr.kable.NA = 0)
+knitr::kable(problem5, 
+             format.args=list(big.mark=","), booktabs = TRUE) 
 ```
-
-\newpage
 
 
 
@@ -101,11 +105,40 @@ problem5
 #| label: 6
 #| fig-cap: "RD1"
 
-problem6.1
-problem6.2
 
+options(knitr.kable.NA = 0)
+knitr::kable(problem6.1, 
+             format.args=list(big.mark=","), booktabs = TRUE) 
+
+options(knitr.kable.NA = 0)
+knitr::kable(problem6.2, 
+             format.args=list(big.mark=","), booktabs = TRUE) 
 ```
 
 \newpage
 # Problem 7
 Repeat your results for bandwidhts of 0.1, 0.12, 0.13, 0.14, and 0.15 (again for 3 and 3.5 stars). Show all of the results in a graph. How sensitive are your findings to the choice of bandwidth?
+
+```{r} 
+#| echo: false
+#| label: 7
+#| fig-cap: "distribution of the running variable before and after the relevent threshold values"
+
+problem.7
+
+```
+
+\newpage
+# Problem 8
+\noindent 8. Examine (graphically) whether contracts appear to manipulate the running variable. In other words, look at the distribution of the running variable before and after the relevent threshold values. What do you find?
+```{r} 
+#| echo: false
+#| label: 8
+#| fig-cap: "distribution of the running variable before and after the relevent threshold values"
+
+plot_above
+
+plot_below
+
+```
+
