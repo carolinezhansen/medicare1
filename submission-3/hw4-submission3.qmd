@@ -38,7 +38,7 @@ load("Hwk3_workspace.Rdata")
 \noindent 1. Remove all SNPs, 800-series plans, and prescription drug only plans (i.e., plans that do not offer Part C benefits). Provide a box and whisker plot showing the distribution of plan counts by county over time. Do you think that the number of plans is sufficient, too few, or too many? @problem1
 ```{r} 
 #| echo: false
-#| label: 1
+#| label: graph1
 #| fig-cap: "Distribution of Plan Counts By County Over time"
 
 problem1
@@ -47,10 +47,10 @@ problem1
 
 \newpage
 # Problem 2
-\noindent 2. Remove all SNPs, 800-series plans, and prescription drug only plans (i.e., plans that do not offer Part C benefits). Provide a box and whisker plot showing the distribution of plan counts by county over time. Do you think that the number of plans is sufficient, too few, or too many? @problem2
+\noindent 2. Provide bar graphs showing the distribution of star ratings in 2010, 2012, and 2015. How has this distribution changed over time?
 ```{r} 
 #| echo: false
-#| label: 2
+#| label: graph2
 #| fig-cap: "Frequency Distribution of Star Ratings"
 
 problem2
@@ -61,7 +61,7 @@ problem2
 \noindent 3. Plot the average benchmark payment over time from 2010 through 2015. How much has the average benchmark payment risen over the years? @problem3
 ```{r} 
 #| echo: false
-#| label: 3
+#| label: graph3
 #| fig-cap: "Average Benchmark Payment Over time"
 
 problem3
@@ -75,7 +75,7 @@ problem3
 @problem4
 ```{r} 
 #| echo: false
-#| label: 4
+#| label: graph4
 #| fig-cap: "Average Medicare Advantage Share"
 
 problem4
@@ -86,7 +86,7 @@ problem4
 \noindent 5. Calculate the running variable underlying the star rating. Provide a table showing the number of plans that are rounded up into a 3-star, 3.5-star, 4-star, 4.5-star, and 5-star rating.
 ```{r} 
 #| echo: false
-#| label: 5
+#| label: table5
 #| fig-cap: "Number of Plans Based on Star Rating"
 
 
@@ -102,7 +102,7 @@ knitr::kable(problem5,
 \noindent 6. Using the RD estimator with a bandwidth of 0.125, provide an estimate of the effect of receiving a 3-star versus a 2.5 star rating on enrollments. Repeat the exercise to estimate the effects at 3.5 stars, and summarize your results in a table.
 ```{r} 
 #| echo: false
-#| label: 6
+#| label: tables6
 #| fig-cap: "RD1"
 
 
@@ -121,7 +121,7 @@ Repeat your results for bandwidhts of 0.1, 0.12, 0.13, 0.14, and 0.15 (again for
 
 ```{r} 
 #| echo: false
-#| label: 7
+#| label: graph7
 #| fig-cap: "distribution of the running variable before and after the relevent threshold values"
 
 problem.7
@@ -133,7 +133,7 @@ problem.7
 \noindent 8. Examine (graphically) whether contracts appear to manipulate the running variable. In other words, look at the distribution of the running variable before and after the relevent threshold values. What do you find?
 ```{r} 
 #| echo: false
-#| label: 8
+#| label: graphs8
 #| fig-cap: "distribution of the running variable before and after the relevent threshold values"
 
 plot_above
@@ -142,3 +142,18 @@ plot_below
 
 ```
 
+# Problem 9
+\noindent 9. Similar to question 4, examine whether plans just above the threshold values have different characteristics than contracts just below the threshold values. Use HMO and Part D status as your plan characteristics.
+
+```{r} 
+#| echo: false
+#| label: graph9
+#| fig-cap: "Market Share of HMOs and Part D Only Over Years"
+
+problem9
+
+```
+
+10.
+
+Star ratings were mainly around the 2-3 star rang which is low in comparison to other industries. It was also interesting to see that lower rating plans have more enrollees per eligible person, whch shows a negative coorelation between enrollee rate and star rating. 

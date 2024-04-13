@@ -50,16 +50,19 @@ problem1
 filtered_data2 <- final.data %>%
   filter(year %in% c(2010, 2012, 2015))
 
-problem2 <-filtered_data2 %>% 
-  ggplot(aes(x=as.factor(Star_Rating))) + 
-  geom_bar() +
+problem2 <- filtered_data2 %>% 
+  ggplot(aes(x = as.factor(Star_Rating), fill = factor(year))) + 
+  geom_bar(position = "dodge", color = "black") +
   labs(
-    x="Star Rating",
-    y="Count of Plans",
-    title="Frequency Distribution of Star Ratings"
-  ) + theme_bw()
+    x = "Star Rating",
+    y = "Count of Plans",
+    title = "Frequency Distribution of Star Ratings"
+  ) + 
+  theme_bw() +
+  scale_fill_manual(values = c("2010" = "#2db82d", "2012" = "#ff7f0e", "2015" = "#1f77b4"))
 
 problem2
+
 
 
 #Problem 3
@@ -417,7 +420,7 @@ problem7 <- rbind(
 problem7
 # Create a plot
 problem.7 <- ggplot(problem7, aes(x = as.factor(Bandwidth), y = Coeff)) +
-  geom_bar(stat = "identity", fill = "skyblue")+ 
+  geom_bar(stat = "identity", fill = "#e39527")+ 
   labs(title = "Effect of Receiving a 3.5-Star Rating",
        x = "Bandwidth Difference",
        y = "Coefficient") +
@@ -436,7 +439,7 @@ threshold_values <- c(-0.125, 0.125)  # Assuming these are your relevant thresho
 # Subset the data for contracts just below and just above the threshold values
 contracts_below <- ma.data.clean %>%
   filter(score >= threshold_values[1] - 0.05 & score <= threshold_values[1] + 0.05)
-contracts_above <- ma.da %>%
+contracts_above <- ma.data.clean %>%
   filter(score >= threshold_values[2] - 0.05 & score <= threshold_values[2] + 0.05)
 
 # Create density plots or histograms to compare the distribution of the running variable
@@ -449,8 +452,6 @@ plot_above <- ggplot(ma.rounded, aes(x = Star_Rating)) +
   geom_density(fill = "red", alpha = 0.5) +  # Density plot for contracts above the threshold
   labs(title = "Distribution of Running Variable - Contracts Above Threshold")
 
-# Plot the graphs side by side
-plot_grid(plot_below, plot_above, ncol = 2)
 
 plot_above
 
@@ -459,7 +460,7 @@ plot_below
 # Problem 9
 # Similar to question 4, examine whether plans just above the threshold values have different characteristics than contracts just below the threshold values. Use HMO and Part D status as your plan characteristics.
 
-mkt_share_data2 <- final.data %>%
+mkt_share_data2 <- ma.data.clean %>%
   filter(plan_type == "HMO", partd == "Yes") %>%
   group_by(fips, year) %>%
   summarize(enroll = first(avg_enrolled),
@@ -471,12 +472,41 @@ mkt_share_data2 <- final.data %>%
 ma.share <- ggplot(mkt.share.data, aes(x = year, y = mkt_share))
 
 # Add stat_summary layer for summary statistics
-problem9 <- ma.share +
+problem9.1 <- ma.share +
   stat_summary(fun = mean, geom = "line") + 
-  labs(x = "Year", y = "Market Share", title = "Market Share Over Years") +
+  labs(x = "Year", y = "Market Share", title = "Market Share of HMOs and Part D Only Over Years") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
-problem9 
+
+
+problem9.1
+
+
+
+threshold_values <- c(-0.125, 0.125)  # Assuming these are your relevant threshold values
+
+# Subset the data for contracts just below and just above the threshold values
+contracts_below <- mkt_share_data2 %>%
+  filter(score >= threshold_values[1] - 0.05 & score <= threshold_values[1] + 0.05)
+contracts_above <- ma.da %>%
+  filter(score >= threshold_values[2] - 0.05 & score <= threshold_values[2] + 0.05)
+
+# Create density plots or histograms to compare the distribution of the running variable
+# before and after the threshold values
+plot_below <- ggplot(contracts_below, aes(x = Star_Rating)) +
+  geom_density(fill = "blue", alpha = 0.5) +  # Density plot for contracts below the threshold
+  labs(title = "Distribution of Running Variable - Contracts Below Threshold")
+
+plot_above <- ggplot(contracts_above, aes(x = Star_Rating)) +
+  geom_density(fill = "red", alpha = 0.5) +  # Density plot for contracts above the threshold
+  labs(title = "Distribution of Running Variable - Contracts Above Threshold")
+
+# Plot the graphs side by side
+plot_grid(plot_below, plot_above, ncol = 2)
+
+plot_above9
+
+plot_below9
    # Rotate x-axis labels if needed
 # Problem 10 
 # Summarize your findings from 5-9. What is the effect of increasing a star rating on enrollments? Briefly explain your results.
